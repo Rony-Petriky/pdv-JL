@@ -1,0 +1,7 @@
+Babel==2.12.1
+CTkTable==0.8
+customtkinter==5.2.0
+darkdetect==0.8.0
+Pillow==10.0.0
+tkcalendar==1.6.1
+tkinter-tooltip==2.1.0

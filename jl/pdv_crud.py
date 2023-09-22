@@ -2,7 +2,7 @@ import sqlite3
 import subprocess
 from datetime import datetime
 #criando banco
-class Crud():
+class PdvCrud():
     def __init__(self, nome_banco:str) -> None:
         self.banco = sqlite3.connect(nome_banco)
         #criando cursor
@@ -28,10 +28,17 @@ class Crud():
             self.cursor.execute(CREATE_TABLE)
            
             dados  = self.cursor.execute("SELECT name FROM sqlite_master")
-            dados = dados.fetchone()
+            tabelas = dados.fetchall()
             print("Tabela", nome_da_tabela, "criada")
-        dados  = self.cursor.execute("SELECT name FROM sqlite_master")
-        dados = dados.fetchone()
+        colunas = []
+        for dado in tabelas:
+            dado = list(dado)
+            coluna = dado[0]
+            colunas.append(coluna)
+        print(colunas)
+
+        teste = self.cursor.execute("SELECT * FROM sqlite_master WHERE type='table'")
+        
 
         #comando = "sqlite3 bancoteste.db '.tables'"
         #shel = subprocess.check_output(comando, shell=True)
@@ -49,7 +56,7 @@ class Crud():
 
         return dados
 
-    def inserir(self,tabela, valores):
+    def inserir(self,tabela, valores, data=False):
         ids = self.read(tabela=tabela, coluna='id', condiçao='ORDER BY id') 
         id = 0
         if len(ids) > 0:
@@ -57,8 +64,8 @@ class Crud():
             quan_ids = int(quan_ids) - 1
             id = ids[quan_ids]
             id = id[0]
+        cont = 0
 
-        
         for valor in valores:
             condiçao = ''
             id = id + 1
@@ -69,11 +76,18 @@ class Crud():
                 else:
                     condiçao += f",{v} "
             date = datetime.now()
-            print(date.date())
-            query = f"INSERT INTO  {tabela} VALUES({id} {condiçao} ,{str(date.date())})"
+            if data == False:
+                print(date.date())
+                query = f"INSERT INTO  {tabela} VALUES({id} {condiçao} ,'{date.date()}')"
+            else:
+                query = f"INSERT INTO  {tabela} VALUES({id} {condiçao})"
+            cont_ids = []
+            cont_ids.append(id)
+            cont = cont + 1
             self.cursor.execute(query)
             self.banco.commit()
-        print(id, " linhas adicionadas")
+        print(cont, " linhas adicionadas")
+        return cont_ids
 
     def deletar(self,tabela, id):
         query = f'DELETE FROM {tabela} WHERE id = {id}'
@@ -117,8 +131,18 @@ class Crud():
     
         
 
+    def verificar(self):
+        dados  = self.cursor.execute("SELECT name FROM sqlite_master")
+        tabelastupla = dados.fetchall()
+        tabelaslist = []
+        for tabela in tabelastupla:
+            tabela = list(tabela)
+            tabela = tabela[0]
+            tabelaslist.append(tabela)
 
-
+        return tabelaslist
+        
+  
 
 
 
